@@ -3,7 +3,6 @@
             [caliban.tracker.protocol :as tracker]
             [clojure.tools.logging :as log]
             [stature.metrics.protocol :as stature]
-            [stature.metrics :as metrics]
             [com.stuartsierra.component :as component]))
 
 (defn- create-log-fn
@@ -27,14 +26,12 @@
     (log/infof "bunnicula-monitoring start consumer-name=%s log-message-size=%s"
                consumer-name log-message-size)
     (assoc c :log-fn (create-log-fn log-message-size)))
-
   (stop [c]
     (log/infof "bunnicula-monitoring stop consumer-name=%s" consumer-name)
     (assoc c :log-fn nil))
-  
   proto/Monitoring
   (with-tracking [this message-fn]
-    (metrics/with-timing statsd consumer-name (message-fn)))
+    (stature/with-timing statsd consumer-name (message-fn)))
   (on-success [this args]
     (log/infof "consumer=%s success" consumer-name)
     (count-result statsd :success consumer-name))
@@ -57,7 +54,6 @@
       (when exception-tracker
         (tracker/report exception-tracker exception)))
     (count-result statsd :fail consumer-name)))
-
 
 (defn create
   "Create component to be used for monitoring bunnicula consumers.
