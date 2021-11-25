@@ -1,37 +1,55 @@
 (ns bunnicula.monitoring-test
-  (:require [bunnicula.monitoring :as monitoring]
-            [bunnicula.protocol :as protocol]
-            [stature.metrics.protocol :as metrics]
-            [caliban.tracker.mock :as tracker]
-            [clojure.test :refer :all]
-            [com.stuartsierra.component :as component]))
+  (:require
+    [bunnicula.monitoring :as monitoring]
+    [bunnicula.protocol :as protocol]
+    [caliban.tracker.mock :as tracker]
+    [clojure.test :refer [deftest is testing use-fixtures]]
+    [com.stuartsierra.component :as component]
+    [stature.metrics.protocol :as metrics]))
+
 
 (def counter-state (atom {}))
 
-(defrecord FakeStatsd []
+
+(defrecord FakeStatsd
+  []
+
   component/Lifecycle
+
   (start [this] this)
-  (stop [this]
+
+
+  (stop
+    [this]
     (reset! counter-state {})
     this)
+
+
   metrics/Metrics
-  (count [this key]
+
+  (count
+    [_ key]
     (swap! counter-state (fn [c] (update c key #(inc (get % key 0))))))
-  (timing [this key val]
+
+
+  (timing
+    [_ key val]
     (swap! counter-state #(assoc % (str key ".timing") val))))
+
 
 (use-fixtures :each (fn [test-fn]
                       (reset! counter-state {})
                       (test-fn)))
 
+
 (deftest monitoring-test
   (testing "monitoring with logging"
     (let [system (component/start-system
-                  {:exception-tracker (tracker/create)
-                   :statsd (->FakeStatsd)
-                   :monitoring (component/using
-                                (monitoring/create {:consumer-name "base.consumer"})
-                                [:exception-tracker :statsd])})]
+                   {:exception-tracker (tracker/create)
+                    :statsd (->FakeStatsd)
+                    :monitoring (component/using
+                                  (monitoring/create {:consumer-name "base.consumer"})
+                                  [:exception-tracker :statsd])})]
       (protocol/on-success (:monitoring system) {:queue-name "consumer-1"
                                                  :message "this is message"})
       (protocol/on-success (:monitoring system) {:queue-name "consumer-1"
@@ -56,15 +74,17 @@
       (is (>= (get @counter-state "base.consumer.timing")
               13))
       (component/stop-system system))))
+
+
 (deftest log-setting-test
   (testing "monitoring without logging"
     (let [system (component/start-system
-                  {:exception-tracker (tracker/create)
-                   :statsd (->FakeStatsd)
-                   :monitoring (component/using
-                                (monitoring/create {:consumer-name "base.consumer-2"
-                                                    :log-message-size 0})
-                                [:exception-tracker :statsd])})]
+                   {:exception-tracker (tracker/create)
+                    :statsd (->FakeStatsd)
+                    :monitoring (component/using
+                                  (monitoring/create {:consumer-name "base.consumer-2"
+                                                      :log-message-size 0})
+                                  [:exception-tracker :statsd])})]
       (protocol/on-success (:monitoring system) {:queue-name "consumer-1"
                                                  :message "this is message"})
       (protocol/on-error (:monitoring system) {:queue-name "consumer-1"

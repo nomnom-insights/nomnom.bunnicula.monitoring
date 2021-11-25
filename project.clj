@@ -1,10 +1,10 @@
 (defproject nomnom/bunnicula.monitoring "2.1.0"
   :description "Monitoring middleware for Bunnicula, with built in support for StatsD metrics and error reporting to Rollbar"
   :url "https://github.com/nomnom-insights/nomnom.bunnicula.monitoring"
-  :dependencies [[org.clojure/clojure "1.10.1"]
-                 [com.stuartsierra/component "0.4.0"]
-                 [org.clojure/tools.logging "0.5.0"]
-                 [nomnom/bunnicula "2.1.0"]
+  :dependencies [[org.clojure/clojure "1.10.3"]
+                 [com.stuartsierra/component "1.0.0"]
+                 [org.clojure/tools.logging "1.1.0"]
+                 [nomnom/bunnicula "2.2.2"]
                  [nomnom/stature "2.0.0"]
                  [nomnom/caliban "1.0.2"]]
   :deploy-repositories {"clojars" {:sign-releases false}}
@@ -14,4 +14,4 @@
             :year 2018
             :key "mit"}
   :profiles {:dev
-             {:dependencies  [[ch.qos.logback/logback-classic "1.2.3"]]}})
+             {:dependencies  [[ch.qos.logback/logback-classic "1.2.7"]]}})
