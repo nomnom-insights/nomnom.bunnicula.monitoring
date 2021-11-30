@@ -22,7 +22,6 @@ jobs:
         path: /root/.m2
         key: v1-deps-${{ hashFiles('project.clj') }}
         restore-keys: |
-          v1-deps-
           v1-deps-${{ hashFiles('project.clj') }}
 
     - name: Install dependencies

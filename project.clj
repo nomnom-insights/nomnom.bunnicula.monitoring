@@ -4,7 +4,7 @@
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [com.stuartsierra/component "1.0.0"]
                  [org.clojure/tools.logging "1.1.0"]
-                 [nomnom/bunnicula "2.2.2"]
+                 [nomnom/bunnicula "2.2.3-SNAPSHOT-1"]
                  [nomnom/stature "2.0.0"]
                  [nomnom/caliban "1.0.2"]]
   :deploy-repositories {"clojars" {:sign-releases false}}
@@ -13,5 +13,6 @@
             :url "https://opensource.org/licenses/MIT"
             :year 2018
             :key "mit"}
+  :global-vars {*warn-on-reflection* true}
   :profiles {:dev
              {:dependencies  [[ch.qos.logback/logback-classic "1.2.7"]]}})
