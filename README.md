@@ -21,5 +21,9 @@ See [here](doc/monitoring.md)
 
 ## Release notes
 
-### v2.0.2 (18.9.2018)
+### v2.0.3 2021-12-2
+
+Updated dependencies
+
+### v2.0.2 2018-09-18
 Open source nomnom/bunnicula.monitoring library
