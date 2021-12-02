@@ -5,8 +5,8 @@
                  [com.stuartsierra/component "1.0.0"]
                  [org.clojure/tools.logging "1.1.0"]
                  [nomnom/bunnicula "2.2.3-SNAPSHOT-1"]
-                 [nomnom/stature "2.0.0"]
-                 [nomnom/caliban "1.0.2"]]
+                 [nomnom/stature "2.0.1-SNAPSHOT-1"]
+                 [nomnom/caliban "1.0.3-SNAPSHOT-1"]]
   :deploy-repositories {"clojars" {:sign-releases false}}
   :min-lein-version "2.5.0"
   :license {:name "MIT License"
