@@ -1,9 +1,11 @@
 (ns bunnicula.monitoring
-  (:require [bunnicula.protocol :as proto]
-            [caliban.tracker.protocol :as tracker]
-            [clojure.tools.logging :as log]
-            [stature.metrics.protocol :as stature]
-            [com.stuartsierra.component :as component]))
+  (:require
+    [bunnicula.protocol :as proto]
+    [caliban.tracker.protocol :as tracker]
+    [clojure.tools.logging :as log]
+    [com.stuartsierra.component :as component]
+    [stature.metrics.protocol :as stature]))
+
 
 (defn- create-log-fn
   "Return fn to be used to format consumer messages for logging.
@@ -15,45 +17,57 @@
         (subs s 0 (min log-message-size (count s))))
       "logging-message-disabled")))
 
+
 (defn count-result
   [statsd result consumer-name]
   (let [metric-key (format "%s.%s" consumer-name (name result))]
     (stature/count statsd metric-key)))
 
-(defrecord Monitoring [consumer-name log-message-size exception-tracker statsd log-fn]
+
+(defrecord Monitoring
+  [consumer-name log-message-size exception-tracker statsd log-fn]
   component/Lifecycle
-  (start [c]
+  (start
+    [c]
     (log/infof "bunnicula-monitoring start consumer-name=%s log-message-size=%s"
                consumer-name log-message-size)
     (assoc c :log-fn (create-log-fn log-message-size)))
-  (stop [c]
+  (stop
+    [c]
     (log/infof "bunnicula-monitoring stop consumer-name=%s" consumer-name)
     (assoc c :log-fn nil))
   proto/Monitoring
-  (with-tracking [this message-fn]
+  (with-tracking
+    [_ message-fn]
     (stature/with-timing statsd consumer-name (message-fn)))
-  (on-success [this args]
+  (on-success
+    [_ _]
     (log/infof "consumer=%s success" consumer-name)
     (count-result statsd :success consumer-name))
-  (on-error [this args]
+  (on-error
+    [_ args]
     (log/errorf "consumer=%s error payload=%s"
                 consumer-name (log-fn (:message args)))
     (count-result statsd :error consumer-name))
-  (on-timeout [this args]
+  (on-timeout
+    [_ args]
     (log/errorf "consumer=%s timeout payload=%s"
                 consumer-name (log-fn (:message args)))
     (count-result statsd :timeout consumer-name))
-  (on-retry [this args]
+  (on-retry
+    [_ args]
     (log/errorf "consumer=%s retry-attempts=%d payload=%s"
                 consumer-name (:retry-attempts args) (log-fn (:message args)))
     (count-result statsd :retry consumer-name))
-  (on-exception [this args]
+  (on-exception
+    [_ args]
     (let [{:keys [exception message]} args]
       (log/errorf exception "consumer=%s exception payload=%s"
                   consumer-name (log-fn message))
       (when exception-tracker
         (tracker/report exception-tracker exception)))
     (count-result statsd :fail consumer-name)))
+
 
 (defn create
   "Create component to be used for monitoring bunnicula consumers.
