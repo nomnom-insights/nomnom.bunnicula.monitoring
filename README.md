@@ -21,7 +21,7 @@ See [here](doc/monitoring.md)
 
 ## Release notes
 
-### v2.0.3 2021-12-2
+### v2.1.1 2021-12-2
 
 Updated dependencies
 
