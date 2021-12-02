@@ -26,56 +26,39 @@
 
 (defrecord Monitoring
   [consumer-name log-message-size exception-tracker statsd log-fn]
-
   component/Lifecycle
-
   (start
     [c]
     (log/infof "bunnicula-monitoring start consumer-name=%s log-message-size=%s"
                consumer-name log-message-size)
     (assoc c :log-fn (create-log-fn log-message-size)))
-
-
   (stop
     [c]
     (log/infof "bunnicula-monitoring stop consumer-name=%s" consumer-name)
     (assoc c :log-fn nil))
-
-
   proto/Monitoring
-
   (with-tracking
     [_ message-fn]
     (stature/with-timing statsd consumer-name (message-fn)))
-
-
   (on-success
     [_ _]
     (log/infof "consumer=%s success" consumer-name)
     (count-result statsd :success consumer-name))
-
-
   (on-error
     [_ args]
     (log/errorf "consumer=%s error payload=%s"
                 consumer-name (log-fn (:message args)))
     (count-result statsd :error consumer-name))
-
-
   (on-timeout
     [_ args]
     (log/errorf "consumer=%s timeout payload=%s"
                 consumer-name (log-fn (:message args)))
     (count-result statsd :timeout consumer-name))
-
-
   (on-retry
     [_ args]
     (log/errorf "consumer=%s retry-attempts=%d payload=%s"
                 consumer-name (:retry-attempts args) (log-fn (:message args)))
     (count-result statsd :retry consumer-name))
-
-
   (on-exception
     [_ args]
     (let [{:keys [exception message]} args]
