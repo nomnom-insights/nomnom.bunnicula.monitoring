@@ -1,3 +1,5 @@
+# :warning: This library is no longer maintained 
+
 # bunnicula.monitoring
 
 <img src="http://www.gstatic.com/tv/thumb/tvbanners/12567255/p12567255_b_v8_aa.jpg" align="right"  height="200px" />
